@@ -107,7 +107,7 @@ st.markdown("""
     /* Coluna 5, 1º botão (Igual - Amarelo Esticado) */
     div[data-testid="column"]:nth-of-type(5) button {
         background-color: #ffd700 !important;
-        height: 284px !important; 
+        height: 584px !important; 
     }
     </style>
 """, unsafe_allow_html=True)
