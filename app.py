@@ -1,151 +1,87 @@
-import streamlit as st
+import webview
+from tkinter import *
 
-# --- Configuração da Página ---
-st.set_page_config(page_title="Calculadora", page_icon="🧮", layout="centered")
-
-# --- CSS Personalizado (Recriando o visual do Tkinter com as cores exatas) ---
-st.markdown("""
-<style>
-    /* Fundo cinza claro como a janela do Tkinter */
-    .stApp {
-        background-color: #d4d0c8; 
-    }
-    
-    /* Container para centralizar e dar o aspecto de janela */
-    .calc-window {
-        background-color: #d4d0c8;
-        padding: 20px;
-        border: 2px solid #ffffff;
-        border-right-color: #808080;
-        border-bottom-color: #808080;
-        max-width: 400px;
-        margin: 0 auto;
-        border-radius: 5px;
-        box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
-    }
-
-    /* Visor (Igual ao Entry do Tkinter) */
-    .display-box {
-        background-color: white;
-        border: 3px inset #808080;
-        padding: 15px;
-        font-size: 30px;
-        font-family: 'Verdana', sans-serif;
-        text-align: right;
-        margin-bottom: 20px;
-        min-height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        overflow: hidden;
-        color: black;
-    }
-
-    /* Estilo base dos botões (3D igual ao Tkinter) */
-    .win-btn {
-        width: 100%;
-        height: 60px;
-        font-size: 20px;
-        font-family: 'Verdana', sans-serif;
-        border: 2px solid #ffffff;
-        border-right-color: #404040;
-        border-bottom-color: #404040;
-        background-color: #dcdcdc; /* Gainsboro */
-        cursor: pointer;
-        transition: 0.05s;
-        font-weight: bold;
-    }
-    .win-btn:active {
-        border: 2px solid #404040;
-        border-right-color: #ffffff;
-        border-bottom-color: #ffffff;
-        transform: translate(1px, 1px);
-    }
-
-    /* Cores customizadas do seu código Tkinter */
-    .btn-num { background-color: #dcdcdc; } /* gainsboro */
-    .btn-op  { background-color: #008000; color: white; } /* green */
-    .btn-dot { background-color: #FFA500; color: white; } /* orange */
-    .btn-clear { background-color: #FF0000; color: white; } /* red */
-    .btn-equal { background-color: #FFD700; color: black; } /* Gold */
-</style>
-""", unsafe_allow_html=True)
-
-# --- Lógica da Calculadora (mesma do seu código Tkinter) ---
-if 'expressao' not in st.session_state:
-    st.session_state.expressao = ""
+# --- Seu Código Original Aqui ---
+root = Tk()
+root.title("Calculadora")
+root.resizable(False,False)
+root.geometry("400x400")
+expressao = ""
+operacao = StringVar()
 
 def press(num):
-    st.session_state.expressao += str(num)
+    global expressao
+    expressao = expressao + str(num)
+    operacao.set(expressao)
 
 def limpar():
-    st.session_state.expressao = ""
+    global expressao
+    expressao = ""
+    operacao.set("")
 
 def teclaigual():
     try:
-        total = str(eval(st.session_state.expressao))
-        st.session_state.expressao = total
+        global expressao
+        total = str(eval(expressao))
+        operacao.set(total)
+        expressao = ""
     except:
-        st.session_state.expressao = " error "
+        operacao.set(" error ")
+        expressao = ""
 
-# --- Renderização do HTML (Para replicar o Grid exato) ---
-st.markdown('<div class="calc-window">', unsafe_allow_html=True)
+entrada = Entry( textvariable=operacao,font=("Verdana", 15, ), bd = 12)
+entrada.place(relx=0.05,rely=0.05,relwidth=0.9,relheight=0.15)
 
-# 1. Visor
-st.markdown(f'<div class="display-box">{st.session_state.expressao if st.session_state.expressao else ""}</div>', unsafe_allow_html=True)
+butao7 = Button( text=' 7 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(7))
+butao7.place(relx=0.1,rely=0.2,relheight=0.15,relwidth=0.15)
+butao8 = Button( text=' 8 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(8))
+butao8.place(relx=0.3,rely=0.2,relheight=0.15,relwidth=0.15)
+butao9 = Button( text=' 9 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(9))
+butao9.place(relx=0.5,rely=0.2,relheight=0.15,relwidth=0.15)
 
-# 2. Botões (Mapeados exatamente pelo seu código Tkinter)
-# Usamos um Grid CSS para alinhar perfeitamente os 4x4 botões
-grid_html = """
-<div style="display: grid; grid-template-columns: repeat(4, 1fr) 60px; gap: 8px;">
-    
-    <!-- Linha 1 -->
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '7'}, '*')">7</button>
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '8'}, '*')">8</button>
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '9'}, '*')">9</button>
-    <button class="win-btn btn-op" onclick="parent.postMessage({value: '+'}, '*')">+</button>
-    
-    <!-- Botão = Gigante ocupando 4 linhas (Coluna extra) -->
-    <button class="win-btn btn-equal" style="grid-row: span 4; height: 100%;" onclick="parent.postMessage({value: '='}, '*')">=</button>
+butao4 = Button( text=' 4 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(4))
+butao4.place(relx=0.1,rely=0.4,relheight=0.15,relwidth=0.15)
+butao5 = Button( text=' 5 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(5))
+butao5.place(relx=0.3,rely=0.4,relheight=0.15,relwidth=0.15)
+butao6 = Button( text=' 6 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(6))
+butao6.place(relx=0.5,rely=0.4,relheight=0.15,relwidth=0.15)
 
-    <!-- Linha 2 -->
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '4'}, '*')">4</button>
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '5'}, '*')">5</button>
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '6'}, '*')">6</button>
-    <button class="win-btn btn-op" onclick="parent.postMessage({value: '-'}, '*')">-</button>
+butao1 = Button( text=' 1 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(1))
+butao1.place(relx=0.1,rely=0.6,relheight=0.15,relwidth=0.15)
+butao2 = Button( text=' 2 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(2))
+butao2.place(relx=0.3,rely=0.6,relheight=0.15,relwidth=0.15)
+butao3 = Button( text=' 3 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(3))
+butao3.place(relx=0.5,rely=0.6,relheight=0.15,relwidth=0.15)
 
-    <!-- Linha 3 -->
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '1'}, '*')">1</button>
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '2'}, '*')">2</button>
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '3'}, '*')">3</button>
-    <button class="win-btn btn-op" onclick="parent.postMessage({value: '/'}, '*')">/</button>
+butao0 = Button( text=' 0 ', fg='black', bg='gainsboro',  bd=3, command=lambda: press(0))
+butao0.place(relx=0.1,rely=0.8,relheight=0.15,relwidth=0.15)
 
-    <!-- Linha 4 -->
-    <button class="win-btn btn-num" onclick="parent.postMessage({value: '0'}, '*')">0</button>
-    <button class="win-btn btn-dot" onclick="parent.postMessage({value: '.'}, '*')">.</button>
-    <button class="win-btn btn-clear" onclick="parent.postMessage({value: 'C'}, '*')">C</button>
-    <button class="win-btn btn-op" onclick="parent.postMessage({value: '*'}, '*')">*</button>
-</div>
-"""
-st.markdown(grid_html, unsafe_allow_html=True)
+decimal = Button( text='.', fg='black', bg='orange', command=lambda: press('.'),bd=3)
+decimal.place(relx=0.3,rely=0.8,relheight=0.15,relwidth=0.15)
 
-st.markdown('</div>', unsafe_allow_html=True)
+limpara = Button( text=' C ', fg='black', bg='red',  bd=3, command=limpar)
+limpara.place(relx=0.5,rely=0.8,relheight=0.15,relwidth=0.15)
 
-# --- Captura os cliques dos botões HTML e chama as funções Python ---
-# (Isso é necessário porque o Streamlit bloqueia o onclick padrão)
-if 'clicked_value' not in st.session_state:
-    st.session_state.clicked_value = None
+mais = Button( text=' + ', fg='black', bg='green', command=lambda: press("+"),bd=3)
+mais.place(relx=0.7,rely=0.2,relheight=0.15,relwidth=0.15)
 
-clicked = st.query_params.get("value")
-if clicked:
-    # Limpa o parâmetro da URL para evitar múltiplas execuções
-    st.query_params.clear()
-    
-    val = str(clicked)
-    if val == "=":
-        teclaigual()
-    elif val == "C":
-        limpar()
-    else:
-        press(val)
-    st.rerun()
+menos = Button( text='-', fg='black', bg='green', command=lambda: press("-"),bd=3)
+menos.place(relx=0.7,rely=0.4,relheight=0.15,relwidth=0.15)
+
+dividir = Button( text='/', fg='black', bg='green', command=lambda: press("/"),bd=3)
+dividir.place(relx=0.7,rely=0.6,relheight=0.15,relwidth=0.15)
+
+multiplicar = Button( text='*', fg='black', bg='green', command=lambda: press("*"),bd=3)
+multiplicar.place(relx=0.7,rely=0.8,relheight=0.15,relwidth=0.15)
+
+igual = Button(text=' = ', fg='black', bg='#FFD700',command=teclaigual)
+igual.place(relx=0.86,rely=0.2,relheight=0.75,relwidth=0.1)
+
+# --- Alteração para fazer funcionar como APP Web ---
+# Em vez de root.mainloop(), iniciamos a janela do webview com o Tkinter dentro
+def start_gui():
+    root.mainloop()
+
+# Criar a janela do navegador que exibirá o código Tkinter
+window = webview.create_window("Calculadora Retrô", start_gui, width=430, height=450, resizable=False)
+webview.start()
