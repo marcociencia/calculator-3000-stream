@@ -4,11 +4,9 @@ import streamlit as st
 st.set_page_config(page_title="Calculator", page_icon="🪶")
 
 # --- STATE MANAGEMENT ---
-# Memory for the typed numbers
 if "expression" not in st.session_state:
     st.session_state.expression = ""
 
-# Window control (normal, max, min, closed)
 if "win_state" not in st.session_state:
     st.session_state.win_state = "normal"
 
@@ -24,7 +22,6 @@ def clear_last():
 
 def calculate_result():
     try:
-        # Replaces the visual 'x' with the mathematical '*' before calculating
         expr = st.session_state.expression.replace("x", "*")
         result = str(eval(expr))
         st.session_state.expression = result
@@ -34,21 +31,18 @@ def calculate_result():
         st.session_state.expression = "Error"
 
 def set_win_state(new_state):
-    # If clicking maximize when already maximized, it restores (normal)
     if st.session_state.win_state == new_state and new_state == "max":
         st.session_state.win_state = "normal"
     else:
         st.session_state.win_state = new_state
 
 # --- CLOSED STATE ---
-# If the window is closed, hide the calculator and show a reopen button
 if st.session_state.win_state == "closed":
     st.warning("The calculator has been closed.")
     st.button("Open Calculator", on_click=set_win_state, args=("normal",))
-    st.stop() # Stops executing the rest of the screen
+    st.stop()
 
-# --- ZOOM LOGIC (Dynamic Width) ---
-# If the state is "max" (maximized), apply zoom by increasing the width
+# --- ZOOM LOGIC ---
 max_width = "700px" if st.session_state.win_state == "max" else "380px"
 
 # --- CUSTOM CSS ---
@@ -61,7 +55,7 @@ st.markdown(f"""
     /* CALCULATOR BODY */
     .block-container {{
         background-color: #ffffff;
-        max-width: {max_width}; /* Controlled by Python via Zoom */
+        max-width: {max_width};
         padding: 15px 20px 20px 20px !important;
         margin-top: 5vh;
         border-radius: 12px;
@@ -70,7 +64,7 @@ st.markdown(f"""
             0px 10px 10px rgba(0, 0, 0, 0.15),
             inset 0px -5px 15px rgba(0, 0, 0, 0.05);
         border: 1px solid #777;
-        transition: max-width 0.3s ease-in-out; /* Smooth animation on zoom */
+        transition: max-width 0.3s ease-in-out;
     }}
 
     /* CALCULATOR DISPLAY */
@@ -120,20 +114,25 @@ st.markdown(f"""
         box-shadow: 0px 0px 0px #2e7d32, 0px 1px 2px rgba(0,0,0,0.3) !important;
     }}
 
-    /* --- SPECIFIC STYLE FOR TITLE BAR BUTTONS --- 
-       Removing backgrounds and borders to keep only the symbols 
-    */
+    /* --- TITLE BAR BUTTONS (CENTERED & SQUARED) --- */
     button[title="Minimize"], button[title="Maximize"], button[title="Close"] {{
         background-color: transparent !important;
         color: #000 !important;
         box-shadow: none !important;
-        border: none !important; /* Removes the squares/outlines */
-        border-radius: 0px !important;
-        height: 40px !important;
-        font-size: 16px !important;
+        border: none !important;
+        border-radius: 4px !important;
+        height: 35px !important;
+        width: 35px !important;
+        font-size: 14px !important;
         padding: 0px !important;
-        margin-top: -10px !important;
+        margin-top: -5px !important;
         transform: none !important;
+        /* Centraliza perfeitamente o símbolo dentro do botão */
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin-left: auto;
+        margin-right: auto;
     }}
     button[title="Minimize"]:hover, button[title="Maximize"]:hover {{
         background-color: #e5e5e5 !important;
@@ -143,66 +142,53 @@ st.markdown(f"""
         color: white !important;
     }}
     
-    /* Hides native Streamlit top bar */
     #MainMenu {{visibility: hidden;}}
     header {{visibility: hidden;}}
     </style>
 """, unsafe_allow_html=True)
 
-# --- TITLE BAR (With functional controls) ---
-col_icon, col_min, col_max, col_close = st.columns([7.5, 1, 1, 1])
+# --- TITLE BAR ---
+col_icon, col_min, col_max, col_close = st.columns([7.2, 1, 1, 1])
 with col_icon: 
-    # Title
-    st.markdown("<div style='font-size: 14px; font-weight: 500; font-family: sans-serif;'><span style='margin-right: 5px;'>🪶</span> Calculator</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size: 14px; font-weight: 500; font-family: sans-serif; padding-top: 5px;'><span style='margin-right: 5px;'>🪶</span> Calculator</div>", unsafe_allow_html=True)
 with col_min: 
-    # Minimize Button
     st.button("—", key="btn_min", help="Minimize", on_click=set_win_state, args=("min",), use_container_width=True)
 with col_max: 
-    # Maximize (Zoom) Button
     st.button("□", key="btn_max", help="Maximize", on_click=set_win_state, args=("max",), use_container_width=True)
 with col_close: 
-    # Close Button
     st.button("✕", key="btn_close", help="Close", on_click=set_win_state, args=("closed",), use_container_width=True)
 
-
-# --- CALCULATOR BODY (Hidden if Minimized) ---
+# --- CALCULATOR BODY ---
 if st.session_state.win_state != "min":
-    # Spacing to detach from the top bar
     st.write("") 
 
-    # Interface: Display
     display_text = st.session_state.expression if st.session_state.expression != "" else "0"
     st.markdown(f'<div class="calc-display">{display_text}</div>', unsafe_allow_html=True)
 
-    # Interface: Buttons (Row 1)
     col1, col2, col3, col4 = st.columns(4)
     with col1: st.button("CE", on_click=clear_last, use_container_width=True)
     with col2: st.button("C", on_click=clear_all, use_container_width=True)
     with col3: st.button("%", on_click=add_to_calc, args=("%",), use_container_width=True)
     with col4: st.button("/", on_click=add_to_calc, args=("/",), type="primary", use_container_width=True)
 
-    # Interface: Buttons (Row 2)
     col1, col2, col3, col4 = st.columns(4)
     with col1: st.button("7", on_click=add_to_calc, args=("7",), use_container_width=True)
     with col2: st.button("8", on_click=add_to_calc, args=("8",), use_container_width=True)
     with col3: st.button("9", on_click=add_to_calc, args=("9",), use_container_width=True)
     with col4: st.button("x", on_click=add_to_calc, args=("x",), type="primary", use_container_width=True)
 
-    # Interface: Buttons (Row 3)
     col1, col2, col3, col4 = st.columns(4)
     with col1: st.button("4", on_click=add_to_calc, args=("4",), use_container_width=True)
     with col2: st.button("5", on_click=add_to_calc, args=("5",), use_container_width=True)
     with col3: st.button("6", on_click=add_to_calc, args=("6",), use_container_width=True)
     with col4: st.button("-", on_click=add_to_calc, args=("-",), type="primary", use_container_width=True)
 
-    # Interface: Buttons (Row 4)
     col1, col2, col3, col4 = st.columns(4)
     with col1: st.button("1", on_click=add_to_calc, args=("1",), use_container_width=True)
     with col2: st.button("2", on_click=add_to_calc, args=("2",), use_container_width=True)
     with col3: st.button("3", on_click=add_to_calc, args=("3",), use_container_width=True)
     with col4: st.button("+", on_click=add_to_calc, args=("+",), type="primary", use_container_width=True)
 
-    # Interface: Buttons (Row 5)
     col1, col2, col3 = st.columns([2, 1, 1])
     with col1: st.button("0", on_click=add_to_calc, args=("0",), use_container_width=True)
     with col2: st.button(".", on_click=add_to_calc, args=(".",), use_container_width=True)
