@@ -1,6 +1,6 @@
 # 🧮 Calculator 3000 - The Stylish Arithmetic Machine
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://calculator-3000-marcociencia.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://calculator-3000-stream-nwmfffdjgwhcquzthsvs3h.streamlit.app/)
 
 ## 🚀 Features
 
