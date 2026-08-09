@@ -1,154 +1,142 @@
 import streamlit as st
 
 # --- Configuração da Página ---
-st.set_page_config(page_title="Style Calculator 3000", page_icon="🧮", layout="centered")
+st.set_page_config(page_title="Calculadora Normal", page_icon="🧮", layout="centered")
 
-# --- CSS Personalizado (para os botões ficarem redondos e bonitos) ---
+# --- CSS para ficar bonito e parecer uma calculadora real ---
 st.markdown("""
 <style>
     .stButton > button {
         width: 100%;
-        height: 60px;
-        font-size: 24px;
-        border-radius: 15px;
-        background-color: #f8f9fa;
-        border: 1px solid #ddd;
-        transition: 0.2s;
+        height: 70px;
+        font-size: 28px;
+        border-radius: 12px;
+        background-color: #f1f3f5;
+        border: 1px solid #dee2e6;
+        transition: 0.1s;
+        font-weight: bold;
     }
     .stButton > button:hover {
-        background-color: #e2e6ea;
+        background-color: #e9ecef;
         border-color: #adb5bd;
         transform: scale(1.02);
     }
-    .big-number {
-        font-size: 48px !important;
-        font-weight: bold !important;
-        font-family: 'Courier New', monospace !important;
-        text-align: right !important;
-        padding-right: 20px;
+    .stButton > button:active {
+        background-color: #ced4da;
     }
-    .op-text {
-        font-size: 30px;
+    /* Botão igual e operadores com cor diferente */
+    .op-btn > button {
+        background-color: #ffc107;
+        border-color: #ffca3a;
+    }
+    .op-btn > button:hover {
+        background-color: #ffca3a;
+    }
+    .eq-btn > button {
+        background-color: #339af0;
+        border-color: #339af0;
+        color: white;
+    }
+    .eq-btn > button:hover {
+        background-color: #228be6;
+    }
+    /* Visor da calculadora */
+    .display-box {
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+        border-radius: 12px;
+        padding: 20px 25px;
+        font-size: 48px;
+        font-weight: bold;
         font-family: 'Courier New', monospace;
-        padding-left: 5px;
+        text-align: right;
+        min-height: 90px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        white-space: nowrap;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # --- Inicialização do Estado (Session State) ---
-if 'display' not in st.session_state:
-    st.session_state.display = "0"       # O que aparece na tela grande principal
-if 'first_num' not in st.session_state:
-    st.session_state.first_num = ""      # Número primário
-if 'operator' not in st.session_state:
-    st.session_state.operator = ""       # Operador
-if 'second_num' not in st.session_state:
-    st.session_state.second_num = ""     # Número secundário
-if 'result' not in st.session_state:
-    st.session_state.result = ""         # Resultado final
-if 'phase' not in st.session_state:
-    st.session_state.phase = "primary"   # Fase atual: "primary" ou "secondary"
+if 'expression' not in st.session_state:
+    st.session_state.expression = ""  # Guarda tudo que foi digitado (ex: "8+5")
 
 # --- Lógica dos Botões ---
 def button_click(val):
-    # 1. DIGITANDO NÚMEROS
-    if val in "0123456789":
-        if st.session_state.phase == "primary":
-            if st.session_state.first_num == "0":
-                st.session_state.first_num = val
-            else:
-                st.session_state.first_num += val
-            st.session_state.display = st.session_state.first_num
-        elif st.session_state.phase == "secondary":
-            if st.session_state.second_num == "0":
-                st.session_state.second_num = val
-            else:
-                st.session_state.second_num += val
-            st.session_state.display = st.session_state.second_num
+    current = st.session_state.expression
 
-    # 2. OPERADORES (+, -, x)
-    elif val in ["+", "-", "x"]:
-        # Se já tem um número primário e não tem operador, registra o operador
-        if st.session_state.first_num != "" and st.session_state.operator == "":
-            st.session_state.operator = val
-            st.session_state.phase = "secondary"
-            st.session_state.display = val  # Mostra o operador na tela principal
+    # 1. SE APERTOU "=" (CALCULAR)
+    if val == "=":
+        try:
+            # Substitui 'x' por '*' para o Python entender multiplicação
+            calc_expression = current.replace("x", "*")
+            # Calcula o resultado
+            result = str(eval(calc_expression))
+            st.session_state.expression = result
+        except:
+            st.session_state.expression = "Erro"
 
-    # 3. IGUAL (=)
-    elif val == "=":
-        if st.session_state.first_num != "" and st.session_state.operator != "" and st.session_state.second_num != "":
-            n1 = int(st.session_state.first_num)
-            n2 = int(st.session_state.second_num)
-            
-            if st.session_state.operator == "+":
-                res = n1 + n2
-            elif st.session_state.operator == "-":
-                res = n1 - n2
-            elif st.session_state.operator == "x":
-                res = n1 * n2
-            
-            st.session_state.result = str(res)
-            st.session_state.display = st.session_state.result
-            st.session_state.phase = "primary"  # Reseta para permitir uma nova conta
-            st.session_state.first_num = st.session_state.result
-            st.session_state.second_num = ""
-            st.session_state.operator = ""
-
-    # 4. LIMPAR (C)
+    # 2. SE APERTOU "C" (LIMPAR)
     elif val == "C":
-        st.session_state.display = "0"
-        st.session_state.first_num = ""
-        st.session_state.operator = ""
-        st.session_state.second_num = ""
-        st.session_state.result = ""
-        st.session_state.phase = "primary"
+        st.session_state.expression = ""
 
-# --- INTERFACE VISUAL ---
-st.title("🧮 Style Calculator 3000")
+    # 3. SE APERTOU QUALQUER OUTRA COISA (números ou operadores)
+    else:
+        # Se a tela atual for "Erro" ou um resultado de conta anterior, começa do zero
+        if current == "Erro" or (current != "" and current.replace("-","").replace("+","").replace("x","").replace("*","").isdigit() and val in "+-x*/"):
+            st.session_state.expression = val
+        else:
+            st.session_state.expression += val
 
-# 1. Tela de Exibição Principal (O Visor)
-st.markdown(f"<div class='big-number'>{st.session_state.display}</div>", unsafe_allow_html=True)
+# --- INTERFACE DA CALCULADORA ---
+st.title("🧮 Calculadora Padrão")
 
-# 2. O "Desenho" da linha quebrada (como na sua imagem)
-# Isso fica abaixo da tela principal, para dar o efeito de "quebra de linha"
-if st.session_state.operator != "":
-    st.markdown("---") # Linha horizontal divisória
-    
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        st.markdown(f"<div class='op-text'>{st.session_state.operator}</div>", unsafe_allow_html=True)
-    with col2:
-        # Exibe o número secundário ou um espaço vazio se ainda não foi digitado
-        val_display = st.session_state.second_num if st.session_state.second_num != "" else "_"
-        st.markdown(f"<div class='op-text' style='font-size: 40px;'>{val_display}</div>", unsafe_allow_html=True)
-        
-    if st.session_state.result != "":
-        st.markdown("---") # Linha horizontal do resultado
-        st.markdown(f"<div class='op-text' style='font-size: 40px; color: #2e7d32;'>RESULT: {st.session_state.result}</div>", unsafe_allow_html=True)
+# Visor
+st.markdown(f"<div class='display-box'>{st.session_state.expression if st.session_state.expression else '0'}</div>", unsafe_allow_html=True)
 
-st.write("") # Espaço
+# Linha 1 (7, 8, 9, /, C)
+c1, c2, c3, c4, c5 = st.columns(5)
+if c1.button("7"): button_click("7")
+if c2.button("8"): button_click("8")
+if c3.button("9"): button_click("9")
+with c4:
+    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
+    if st.button("/"): button_click("/")
+    st.markdown("</div>", unsafe_allow_html=True)
+if c5.button("C"): button_click("C")
 
-# 3. Botões
-# Linha 1
+# Linha 2 (4, 5, 6, x, -)
+c1, c2, c3, c4, c5 = st.columns(5)
+if c1.button("4"): button_click("4")
+if c2.button("5"): button_click("5")
+if c3.button("6"): button_click("6")
+with c4:
+    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
+    if st.button("x"): button_click("x")
+    st.markdown("</div>", unsafe_allow_html=True)
+with c5:
+    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
+    if st.button("-"): button_click("-")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# Linha 3 (1, 2, 3, +, =)
 c1, c2, c3, c4, c5 = st.columns(5)
 if c1.button("1"): button_click("1")
 if c2.button("2"): button_click("2")
 if c3.button("3"): button_click("3")
-if c4.button("4"): button_click("4")
-if c5.button("5"): button_click("5")
+with c4:
+    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
+    if st.button("+"): button_click("+")
+    st.markdown("</div>", unsafe_allow_html=True)
+with c5:
+    st.markdown("<div class='eq-btn'>", unsafe_allow_html=True)
+    if st.button("="): button_click("=")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# Linha 2
+# Linha 4 (0, ., 00)
 c1, c2, c3, c4, c5 = st.columns(5)
-if c1.button("6"): button_click("6")
-if c2.button("7"): button_click("7")
-if c3.button("8"): button_click("8")
-if c4.button("9"): button_click("9")
-if c5.button("0"): button_click("0")
-
-# Linha 3 (Operadores e Ações)
-c1, c2, c3, c4, c5 = st.columns(5)
-if c1.button("+"): button_click("+")
-if c2.button("-"): button_click("-")
-if c3.button("x"): button_click("x")
-if c4.button("="): button_click("=")
-if c5.button("C"): button_click("C")
+if c1.button("0"): button_click("0")
+if c2.button("."): button_click(".")
+if c3.button("00"): button_click("00")
