@@ -1,142 +1,176 @@
 import streamlit as st
 
-# --- Configuração da Página ---
-st.set_page_config(page_title="Calculadora Normal", page_icon="🧮", layout="centered")
+# --- Configuração ---
+st.set_page_config(page_title="Calculadora Retrô", page_icon="🖥️", layout="centered")
 
-# --- CSS para ficar bonito e parecer uma calculadora real ---
+# --- CSS e HTML Customizado (Para imitar o visual 3D da imagem) ---
+# Isso cria os botões, o visor e o layout exato da sua imagem
 st.markdown("""
 <style>
-    .stButton > button {
-        width: 100%;
-        height: 70px;
-        font-size: 28px;
-        border-radius: 12px;
-        background-color: #f1f3f5;
-        border: 1px solid #dee2e6;
-        transition: 0.1s;
-        font-weight: bold;
+    /* Reset básico */
+    .stApp {
+        background-color: #d4d0c8; /* Cinza clássico Windows 95 */
     }
-    .stButton > button:hover {
-        background-color: #e9ecef;
-        border-color: #adb5bd;
-        transform: scale(1.02);
+    
+    /* Container principal que simula a janela */
+    .calc-container {
+        background-color: #c0c0c0;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: inset -2px -2px 5px #808080, inset 2px 2px 5px #ffffff;
+        max-width: 400px;
+        margin: 0 auto;
+        border: 2px solid #ffffff;
+        border-right-color: #808080;
+        border-bottom-color: #808080;
     }
-    .stButton > button:active {
-        background-color: #ced4da;
-    }
-    /* Botão igual e operadores com cor diferente */
-    .op-btn > button {
-        background-color: #ffc107;
-        border-color: #ffca3a;
-    }
-    .op-btn > button:hover {
-        background-color: #ffca3a;
-    }
-    .eq-btn > button {
-        background-color: #339af0;
-        border-color: #339af0;
-        color: white;
-    }
-    .eq-btn > button:hover {
-        background-color: #228be6;
-    }
-    /* Visor da calculadora */
+
+    /* Visor LCD 3D */
     .display-box {
-        background-color: #f8f9fa;
-        border: 2px solid #dee2e6;
-        border-radius: 12px;
-        padding: 20px 25px;
-        font-size: 48px;
-        font-weight: bold;
+        background-color: #ffffff;
+        border: 2px solid #808080;
+        border-top-color: #404040;
+        border-left-color: #404040;
+        padding: 15px 20px;
+        font-size: 36px;
         font-family: 'Courier New', monospace;
         text-align: right;
-        min-height: 90px;
         margin-bottom: 20px;
-        overflow-x: auto;
-        white-space: nowrap;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: inset 2px 2px 3px rgba(0,0,0,0.2);
+        color: #000;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        overflow: hidden;
+    }
+
+    /* Botões estilo Windows 95 (3D Bevel) */
+    .win-btn {
+        width: 100%;
+        height: 60px;
+        font-size: 22px;
+        font-weight: bold;
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #d4d0c8;
+        border: 2px solid #ffffff;
+        border-right-color: #404040;
+        border-bottom-color: #404040;
+        cursor: pointer;
+        transition: 0.1s;
+        color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: none;
+        border-radius: 0; /* Botões quadrados */
+    }
+    
+    /* Efeito de clique (afunda o botão) */
+    .win-btn:active {
+        border: 2px solid #404040;
+        border-right-color: #ffffff;
+        border-bottom-color: #ffffff;
+        transform: translate(2px, 2px);
+    }
+
+    /* Cores específicas baseadas na imagem */
+    .btn-num { background-color: #d4d0c8; } /* Botões cinza claro */
+    .btn-op { background-color: #008000; color: white; } /* Botões verdes */
+    .btn-dot { background-color: #FFA500; color: white; } /* Botão laranja (.) */
+    .btn-clear { background-color: #FF0000; color: white; } /* Botão vermelho (C) */
+    .btn-equal { 
+        background-color: #FFD700; 
+        color: black;
+        height: 100%; /* Ocupa toda a altura disponível na grade */
+    }
+
+    /* Layout de Grade 4x4 (para empilhar os botões) */
+    .grid-calc {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr) 60px; /* 4 colunas normais + 1 coluna estreita pro '=' */
+        gap: 8px;
+    }
+    
+    /* O botão '=' ocupa 4 linhas na grade */
+    .span-4-rows {
+        grid-row: span 4;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Inicialização do Estado (Session State) ---
+# --- Estado da Calculadora ---
 if 'expression' not in st.session_state:
-    st.session_state.expression = ""  # Guarda tudo que foi digitado (ex: "8+5")
+    st.session_state.expression = ""
 
-# --- Lógica dos Botões ---
+# --- Função de Clique ---
 def button_click(val):
     current = st.session_state.expression
 
-    # 1. SE APERTOU "=" (CALCULAR)
     if val == "=":
         try:
-            # Substitui 'x' por '*' para o Python entender multiplicação
-            calc_expression = current.replace("x", "*")
-            # Calcula o resultado
+            calc_expression = current.replace("x", "*").replace("÷", "/")
             result = str(eval(calc_expression))
             st.session_state.expression = result
         except:
             st.session_state.expression = "Erro"
-
-    # 2. SE APERTOU "C" (LIMPAR)
     elif val == "C":
         st.session_state.expression = ""
-
-    # 3. SE APERTOU QUALQUER OUTRA COISA (números ou operadores)
     else:
-        # Se a tela atual for "Erro" ou um resultado de conta anterior, começa do zero
-        if current == "Erro" or (current != "" and current.replace("-","").replace("+","").replace("x","").replace("*","").isdigit() and val in "+-x*/"):
+        if current == "Erro" or (current != "" and current.replace("-","").replace("+","").replace("x","").replace("÷","").replace("*","").replace("/","").isdigit() and val in "+-x÷*/"):
             st.session_state.expression = val
         else:
             st.session_state.expression += val
 
-# --- INTERFACE DA CALCULADORA ---
-st.title("🧮 Calculadora Padrão")
+# --- Interface Visual (Usando HTML direto) ---
+st.markdown('<div class="calc-container">', unsafe_allow_html=True)
 
 # Visor
-st.markdown(f"<div class='display-box'>{st.session_state.expression if st.session_state.expression else '0'}</div>", unsafe_allow_html=True)
+st.markdown(f'<div class="display-box">{st.session_state.expression if st.session_state.expression else ""}</div>', unsafe_allow_html=True)
 
-# Linha 1 (7, 8, 9, /, C)
-c1, c2, c3, c4, c5 = st.columns(5)
-if c1.button("7"): button_click("7")
-if c2.button("8"): button_click("8")
-if c3.button("9"): button_click("9")
-with c4:
-    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
-    if st.button("/"): button_click("/")
-    st.markdown("</div>", unsafe_allow_html=True)
-if c5.button("C"): button_click("C")
+# Grid de Botões (HTML Mapeado 1:1 com a imagem)
+# A string HTML é construída e renderizada. O Streamlit não interfere nos botões HTML.
+grid_html = """
+<div class="grid-calc">
+    <!-- Linha 1 -->
+    <button class="win-btn btn-num" onclick="parent.postMessage('7', '*')">7</button>
+    <button class="win-btn btn-num" onclick="parent.postMessage('8', '*')">8</button>
+    <button class="win-btn btn-num" onclick="parent.postMessage('9', '*')">9</button>
+    <button class="win-btn btn-op" onclick="parent.postMessage('+', '*')">+</button>
+    <button class="win-btn btn-equal span-4-rows" onclick="parent.postMessage('=', '*')">=</button>
 
-# Linha 2 (4, 5, 6, x, -)
-c1, c2, c3, c4, c5 = st.columns(5)
-if c1.button("4"): button_click("4")
-if c2.button("5"): button_click("5")
-if c3.button("6"): button_click("6")
-with c4:
-    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
-    if st.button("x"): button_click("x")
-    st.markdown("</div>", unsafe_allow_html=True)
-with c5:
-    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
-    if st.button("-"): button_click("-")
-    st.markdown("</div>", unsafe_allow_html=True)
+    <!-- Linha 2 -->
+    <button class="win-btn btn-num" onclick="parent.postMessage('4', '*')">4</button>
+    <button class="win-btn btn-num" onclick="parent.postMessage('5', '*')">5</button>
+    <button class="win-btn btn-num" onclick="parent.postMessage('6', '*')">6</button>
+    <button class="win-btn btn-op" onclick="parent.postMessage('-', '*')">-</button>
 
-# Linha 3 (1, 2, 3, +, =)
-c1, c2, c3, c4, c5 = st.columns(5)
-if c1.button("1"): button_click("1")
-if c2.button("2"): button_click("2")
-if c3.button("3"): button_click("3")
-with c4:
-    st.markdown("<div class='op-btn'>", unsafe_allow_html=True)
-    if st.button("+"): button_click("+")
-    st.markdown("</div>", unsafe_allow_html=True)
-with c5:
-    st.markdown("<div class='eq-btn'>", unsafe_allow_html=True)
-    if st.button("="): button_click("=")
-    st.markdown("</div>", unsafe_allow_html=True)
+    <!-- Linha 3 -->
+    <button class="win-btn btn-num" onclick="parent.postMessage('1', '*')">1</button>
+    <button class="win-btn btn-num" onclick="parent.postMessage('2', '*')">2</button>
+    <button class="win-btn btn-num" onclick="parent.postMessage('3', '*')">3</button>
+    <button class="win-btn btn-op" onclick="parent.postMessage('÷', '*')">÷</button>
 
-# Linha 4 (0, ., 00)
-c1, c2, c3, c4, c5 = st.columns(5)
-if c1.button("0"): button_click("0")
-if c2.button("."): button_click(".")
-if c3.button("00"): button_click("00")
+    <!-- Linha 4 -->
+    <button class="win-btn btn-num" onclick="parent.postMessage('0', '*')">0</button>
+    <button class="win-btn btn-dot" onclick="parent.postMessage('.', '*')">.</button>
+    <button class="win-btn btn-clear" onclick="parent.postMessage('C', '*')">C</button>
+    <button class="win-btn btn-op" onclick="parent.postMessage('x', '*')">x</button>
+</div>
+"""
+st.markdown(grid_html, unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# --- Capturar o clique dos botões HTML ---
+# O Streamlit recebe os cliques via postMessage e executa a lógica Python
+st.markdown("""
+<script>
+document.addEventListener('click', function(e) {
+    if (e.target.tagName === 'BUTTON' && e.target.onclick) {
+        // Simula clique para disparar o Streamlit
+        e.target.click(); 
+    }
+});
+</script>
+""", unsafe_allow_html=True)
