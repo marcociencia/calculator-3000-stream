@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Configuração inicial da página (layout='centered' ajuda no visual compacto)
+# Configuração inicial da página (layout='centered' para visualização compacta)
 st.set_page_config(page_title="Calculadora", page_icon="🧮", layout="centered")
 
 # CSS Customizado
@@ -8,24 +8,24 @@ st.markdown("""
     <style>
     /* Fundo geral da página (fora da calculadora) */
     .stApp {
-        background-color: #e5e5e5;
+        background-color: #ffffff;
     }
 
-    /* Corpo principal da calculadora: limita o tamanho, centraliza e adiciona o fundo branco */
+    /* Corpo principal da calculadora: limita o tamanho, adiciona o fundo cinza retro da imagem e uma sombra */
     .block-container {
-        max-width: 450px !important; /* Tamanho normal de calculadora */
-        background-color: #ffffff;
+        max-width: 450px !important; 
+        background-color: #f0f0f0; /* Cinza claro idêntico à carcaça na imagem */
         padding: 2.5rem !important;
         border-radius: 8px;
-        box-shadow: 0px 10px 30px rgba(0,0,0,0.15); /* Sombra para destacar do fundo */
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.2); 
         margin-top: 5vh;
     }
 
-    /* Esconde cabeçalho e rodapé padrão do Streamlit para um visual mais limpo */
+    /* Esconde cabeçalho e rodapé padrão do Streamlit */
     header {visibility: hidden;}
     footer {visibility: hidden;}
 
-    /* Estilo do Visor idêntico à imagem */
+    /* Estilo do Visor idêntico à imagem (Inset 3D) */
     .visor {
         background-color: #ffffff;
         padding: 15px;
@@ -71,27 +71,26 @@ st.markdown("""
         box-shadow: none !important;
     }
 
-    /* --- CORES ESPECÍFICAS (VIA SELETORES DE POSIÇÃO) --- */
-    /* Isso elimina os "gaps" invisíveis e resolve o desalinhamento dos botões verdes */
+    /* --- CORES ESPECÍFICAS --- */
 
-    /* Coluna 2, 4º botão (Ponto Laranja) */
+    /* Coluna 2, 4º botão (Ponto - Laranja) */
     div[data-testid="column"]:nth-of-type(2) div.element-container:nth-child(4) button {
         background-color: #ffa500 !important;
     }
 
-    /* Coluna 3, 4º botão (C Vermelho) */
+    /* Coluna 3, 4º botão (C - Roxo) */
     div[data-testid="column"]:nth-of-type(3) div.element-container:nth-child(4) button {
-        background-color: #ff0000 !important;
+        background-color: #800080 !important; /* Roxo clássico */
         color: white !important; 
     }
 
-    /* Coluna 4, Todos os botões (Operadores Verdes) */
+    /* Coluna 4, Todos os botões (Operadores - Verde Claro) */
     div[data-testid="column"]:nth-of-type(4) button {
-        background-color: #008000 !important;
-        color: white !important;
+        background-color: #90ee90 !important; /* Verde claro (LightGreen) */
+        color: black !important; /* Texto preto para dar contraste com o verde claro */
     }
 
-    /* Coluna 5, 1º botão (Igual Amarelo Esticado) */
+    /* Coluna 5, 1º botão (Igual - Amarelo Esticado) */
     div[data-testid="column"]:nth-of-type(5) button {
         background-color: #ffd700 !important;
         height: 284px !important; /* Altura exata para alinhar com os 4 botões ao lado */
@@ -123,7 +122,7 @@ def calcular():
 texto_visor = st.session_state.expressao if st.session_state.expressao else " "
 st.markdown(f'<div class="visor">{texto_visor}</div>', unsafe_allow_html=True)
 
-# Layout limpo: 5 Colunas (Sem chamadas extras de HTML oculto entre os botões)
+# Layout limpo: 5 Colunas 
 col1, col2, col3, col4, col5 = st.columns(5, gap="small")
 
 with col1:
