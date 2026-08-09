@@ -1,21 +1,34 @@
 import streamlit as st
 
-# Configuração inicial da página
-st.set_page_config(page_title="Calculadora", page_icon="🧮")
+# Configuração inicial da página (layout='centered' ajuda no visual compacto)
+st.set_page_config(page_title="Calculadora", page_icon="🧮", layout="centered")
 
-# CSS Customizado para recriar o visual 3D "Retrô" e as cores
+# CSS Customizado
 st.markdown("""
     <style>
-    /* Fundo da aplicação */
+    /* Fundo geral da página (fora da calculadora) */
     .stApp {
-        background-color: #f0f0f0;
+        background-color: #e5e5e5;
     }
+
+    /* Corpo principal da calculadora: limita o tamanho, centraliza e adiciona o fundo branco */
+    .block-container {
+        max-width: 450px !important; /* Tamanho normal de calculadora */
+        background-color: #ffffff;
+        padding: 2.5rem !important;
+        border-radius: 8px;
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.15); /* Sombra para destacar do fundo */
+        margin-top: 5vh;
+    }
+
+    /* Esconde cabeçalho e rodapé padrão do Streamlit para um visual mais limpo */
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
 
     /* Estilo do Visor idêntico à imagem */
     .visor {
         background-color: #ffffff;
         padding: 15px;
-        /* Borda estilo Inset 3D profundo */
         border-top: 6px solid #a0a0a0;
         border-left: 6px solid #a0a0a0;
         border-bottom: 6px solid #ffffff;
@@ -31,13 +44,13 @@ st.markdown("""
 
     /* Estilo base (Outset 3D) para TODOS os botões */
     div.stButton > button {
-        background-color: #e0e0e0; /* Cinza claro padrão */
+        background-color: #e0e0e0;
         color: black !important;
         border-top: 3px solid #ffffff !important;
         border-left: 3px solid #ffffff !important;
         border-bottom: 3px solid #666666 !important;
         border-right: 3px solid #666666 !important;
-        border-radius: 0px !important; /* Cantos quadrados */
+        border-radius: 0px !important;
         font-weight: bold;
         font-size: 1.2rem;
         height: 60px;
@@ -53,40 +66,38 @@ st.markdown("""
         border-right: 3px solid #ffffff !important;
     }
 
-    /* Removendo o hover padrão do Streamlit para manter o design */
+    /* Removendo o hover padrão do Streamlit */
     div.stButton > button:hover, div.stButton > button:focus {
         box-shadow: none !important;
-        border-color: transparent;
     }
 
-    /* --- LÓGICA DE CORES ESPECÍFICAS VIA MARCADORES INVISÍVEIS --- */
-    
-    /* Botão Laranja (.) */
-    div.element-container:has(.marker-orange) + div.element-container button {
+    /* --- CORES ESPECÍFICAS (VIA SELETORES DE POSIÇÃO) --- */
+    /* Isso elimina os "gaps" invisíveis e resolve o desalinhamento dos botões verdes */
+
+    /* Coluna 2, 4º botão (Ponto Laranja) */
+    div[data-testid="column"]:nth-of-type(2) div.element-container:nth-child(4) button {
         background-color: #ffa500 !important;
     }
 
-    /* Botão Vermelho (C) */
-    div.element-container:has(.marker-red) + div.element-container button {
+    /* Coluna 3, 4º botão (C Vermelho) */
+    div[data-testid="column"]:nth-of-type(3) div.element-container:nth-child(4) button {
         background-color: #ff0000 !important;
+        color: white !important; 
     }
 
-    /* Botões Verdes (+, -, /, *) */
-    div.element-container:has(.marker-green) + div.element-container button {
+    /* Coluna 4, Todos os botões (Operadores Verdes) */
+    div[data-testid="column"]:nth-of-type(4) button {
         background-color: #008000 !important;
+        color: white !important;
     }
 
-    /* Botão Amarelo (=) - Esticado para ocupar 4 linhas */
-    div.element-container:has(.marker-yellow) + div.element-container button {
+    /* Coluna 5, 1º botão (Igual Amarelo Esticado) */
+    div[data-testid="column"]:nth-of-type(5) button {
         background-color: #ffd700 !important;
-        height: 284px !important; /* Altura calculada: 4 botões de 60px + 3 espaços */
+        height: 284px !important; /* Altura exata para alinhar com os 4 botões ao lado */
     }
     </style>
 """, unsafe_allow_html=True)
-
-# Função auxiliar para injetar marcadores de cor antes dos botões específicos
-def aplicar_cor(classe_cor):
-    st.markdown(f'<div class="{classe_cor}" style="display:none;"></div>', unsafe_allow_html=True)
 
 # Inicializando o state para guardar a expressão matemática
 if 'expressao' not in st.session_state:
@@ -94,7 +105,6 @@ if 'expressao' not in st.session_state:
 
 # Funções (Callbacks)
 def press(num):
-    # Se houve um erro anterior, limpa a tela antes de começar a digitar
     if st.session_state.expressao == " error ":
         st.session_state.expressao = ""
     st.session_state.expressao += str(num)
@@ -104,7 +114,6 @@ def limpar():
 
 def calcular():
     try:
-        # Avalia a expressão matemática armazenada
         resultado = str(eval(st.session_state.expressao))
         st.session_state.expressao = resultado
     except Exception:
@@ -114,7 +123,7 @@ def calcular():
 texto_visor = st.session_state.expressao if st.session_state.expressao else " "
 st.markdown(f'<div class="visor">{texto_visor}</div>', unsafe_allow_html=True)
 
-# Layout: 5 Colunas (Em vez de 4, para isolar o botão "=" na última)
+# Layout limpo: 5 Colunas (Sem chamadas extras de HTML oculto entre os botões)
 col1, col2, col3, col4, col5 = st.columns(5, gap="small")
 
 with col1:
@@ -127,26 +136,19 @@ with col2:
     st.button('8', on_click=press, args=('8',), use_container_width=True)
     st.button('5', on_click=press, args=('5',), use_container_width=True)
     st.button('2', on_click=press, args=('2',), use_container_width=True)
-    aplicar_cor('marker-orange')
     st.button('.', on_click=press, args=('.',), use_container_width=True)
 
 with col3:
     st.button('9', on_click=press, args=('9',), use_container_width=True)
     st.button('6', on_click=press, args=('6',), use_container_width=True)
     st.button('3', on_click=press, args=('3',), use_container_width=True)
-    aplicar_cor('marker-red')
-    st.button('C', on_click=limpar, use_container_width=True) # type='primary' foi removido para não interferir
+    st.button('C', on_click=limpar, use_container_width=True) 
 
 with col4:
-    aplicar_cor('marker-green')
     st.button('+', on_click=press, args=('+',), use_container_width=True)
-    aplicar_cor('marker-green')
     st.button('-', on_click=press, args=('-',), use_container_width=True)
-    aplicar_cor('marker-green')
     st.button('/', on_click=press, args=('/',), use_container_width=True)
-    aplicar_cor('marker-green')
     st.button('*', on_click=press, args=('*',), use_container_width=True)
 
 with col5:
-    aplicar_cor('marker-yellow')
     st.button('=', on_click=calcular, use_container_width=True)
