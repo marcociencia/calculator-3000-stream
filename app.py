@@ -105,10 +105,21 @@ st.markdown("""
     }
 
     /* Coluna 5, 1º botão (Igual - Amarelo Esticado) */
-    div[data-testid="column"]:nth-of-type(5) button {
-        background-color: #ffd700 !important;
-        bottom: 584px !important; 
-    }
+/* Faz a coluna 5 e seus containers internos preencherem 100% da altura total da grade */
+div[data-testid="column"]:nth-of-type(5),
+div[data-testid="column"]:nth-of-type(5) > div,
+div[data-testid="column"]:nth-of-type(5) > div > div {
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Força o botão de igual a ocupar 100% da altura da coluna esticada */
+div[data-testid="column"]:nth-of-type(5) button {
+    background-color: #ffd700 !important;
+    flex-grow: 1 !important;
+    height: auto !important; /* Deixa o flexbox controlar a altura perfeitamente */
+}
     </style>
 """, unsafe_allow_html=True)
 
