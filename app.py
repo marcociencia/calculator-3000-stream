@@ -1,7 +1,7 @@
 import streamlit as st
 
 # Configuração da página
-st.set_page_config(page_title="Calculadora", page_icon="🪶")
+st.set_page_config(page_title="Calculator", page_icon="🪶")
 
 # --- CSS Personalizado ---
 st.markdown("""
@@ -172,7 +172,7 @@ col1, col2, col3, col4 = st.columns(4)
 with col1: st.button("7", on_click=add_to_calc, args=("7",), use_container_width=True)
 with col2: st.button("8", on_click=add_to_calc, args=("8",), use_container_width=True)
 with col3: st.button("9", on_click=add_to_calc, args=("9",), use_container_width=True)
-with col4: st.button("X", on_click=add_to_calc, args=("*",), type="primary", use_container_width=True)
+with col4: st.button("X", on_click=add_to_calc, args=("X",), type="primary", use_container_width=True)
 
 col1, col2, col3, col4 = st.columns(4)
 with col1: st.button("4", on_click=add_to_calc, args=("4",), use_container_width=True)
