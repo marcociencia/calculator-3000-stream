@@ -114,32 +114,57 @@ st.markdown(f"""
         box-shadow: 0px 0px 0px #2e7d32, 0px 1px 2px rgba(0,0,0,0.3) !important;
     }}
 
-    /* --- TITLE BAR BUTTONS (CENTERED & SQUARED) --- */
-    button[title="Minimize"], button[title="Maximize"], button[title="Close"] {{
+    /* --- TITLE BAR BUTTONS (CENTERED & SQUARED WITHOUT BORDERS) --- */
+    div.stButton > button[title="Minimize"], 
+    div.stButton > button[title="Maximize"], 
+    div.stButton > button[title="Close"] {{
         background-color: transparent !important;
         color: #000 !important;
         box-shadow: none !important;
         border: none !important;
+        outline: none !important;
         border-radius: 4px !important;
         height: 35px !important;
         width: 35px !important;
         font-size: 14px !important;
         padding: 0px !important;
         margin-top: -5px !important;
+        
+        /* Centraliza o botão dentro da coluna */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        
         transform: none !important;
-        /* Centraliza perfeitamente o símbolo dentro do botão */
+        
+        /* Centraliza o ícone dentro do quadrado de hover */
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
-        margin-left: auto;
-        margin-right: auto;
     }}
-    button[title="Minimize"]:hover, button[title="Maximize"]:hover {{
+    
+    /* Efeitos de Hover (Passar o mouse) */
+    div.stButton > button[title="Minimize"]:hover, 
+    div.stButton > button[title="Maximize"]:hover {{
         background-color: #e5e5e5 !important;
+        box-shadow: none !important;
+        border: none !important;
+        transform: none !important;
     }}
-    button[title="Close"]:hover {{
+    
+    div.stButton > button[title="Close"]:hover {{
         background-color: #e81123 !important;
         color: white !important;
+        box-shadow: none !important;
+        border: none !important;
+        transform: none !important;
+    }}
+
+    /* Efeitos Active (Remover sensação de clique 3D) */
+    div.stButton > button[title="Minimize"]:active, 
+    div.stButton > button[title="Maximize"]:active, 
+    div.stButton > button[title="Close"]:active {{
+        transform: none !important;
+        box-shadow: none !important;
     }}
     
     #MainMenu {{visibility: hidden;}}
