@@ -126,22 +126,34 @@ st.markdown(f"""
         border-radius: 4px !important;
         height: 35px !important;
         width: 35px !important;
-        font-size: 14px !important;
+        font-size: 16px !important;
         padding: 0px !important;
         margin-top: -5px !important;
-        
-        /* Centraliza o botão dentro da coluna */
         margin-left: auto !important;
         margin-right: auto !important;
-        
         transform: none !important;
-        
-        /* Centraliza o ícone dentro do quadrado de hover */
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
     }}
     
+    /* FORÇAR CENTRALIZAÇÃO DOS ELEMENTOS INTERNOS DO STREAMLIT (DIV e P) */
+    div.stButton > button[title="Minimize"] div, 
+    div.stButton > button[title="Maximize"] div, 
+    div.stButton > button[title="Close"] div,
+    div.stButton > button[title="Minimize"] p, 
+    div.stButton > button[title="Maximize"] p, 
+    div.stButton > button[title="Close"] p {{
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
+        width: 100% !important;
+        line-height: 1 !important;
+    }}
+
     /* Efeitos de Hover (Passar o mouse) */
     div.stButton > button[title="Minimize"]:hover, 
     div.stButton > button[title="Maximize"]:hover {{
@@ -159,7 +171,7 @@ st.markdown(f"""
         transform: none !important;
     }}
 
-    /* Efeitos Active (Remover sensação de clique 3D) */
+    /* Efeitos Active */
     div.stButton > button[title="Minimize"]:active, 
     div.stButton > button[title="Maximize"]:active, 
     div.stButton > button[title="Close"]:active {{
@@ -177,7 +189,8 @@ col_icon, col_min, col_max, col_close = st.columns([7.2, 1, 1, 1])
 with col_icon: 
     st.markdown("<div style='font-size: 14px; font-weight: 500; font-family: sans-serif; padding-top: 5px;'><span style='margin-right: 5px;'>🪶</span> Calculator</div>", unsafe_allow_html=True)
 with col_min: 
-    st.button("—", key="btn_min", help="Minimize", on_click=set_win_state, args=("min",), use_container_width=True)
+    # Trocado para o traço simples para alinhar no centro sem problemas com a fonte
+    st.button("-", key="btn_min", help="Minimize", on_click=set_win_state, args=("min",), use_container_width=True)
 with col_max: 
     st.button("□", key="btn_max", help="Maximize", on_click=set_win_state, args=("max",), use_container_width=True)
 with col_close: 
